@@ -43,6 +43,12 @@ data/raw/*
 data/processed/*
 !data/processed/.gitkeep
 *.csv
+*.tsv
+*.xlsx
+*.xls
+*.xlsm
+*.xlsb
+*.ods
 *.parquet
 *.feather
 *.h5
