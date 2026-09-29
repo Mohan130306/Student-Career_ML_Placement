@@ -123,6 +123,17 @@ def _is_missing_entry(val: Any) -> bool:
     return False
 
 
+def _find_column(df: pd.DataFrame, target_col: str) -> Optional[str]:
+    """Finds exact or case-insensitive matching column in DataFrame."""
+    if target_col in df.columns:
+        return target_col
+    target_clean = target_col.strip().lower()
+    for col in df.columns:
+        if str(col).strip().lower() == target_clean:
+            return str(col)
+    return None
+
+
 def _to_anonymized_row_labels(indices: Union[List[int], pd.Index]) -> List[str]:
     """Converts 0-based DataFrame indices to human-readable 1-based Excel row labels."""
     # Row 1 is header in Excel, so row data starts at Excel row index + 2
@@ -141,6 +152,12 @@ def check_schema_and_columns(df: pd.DataFrame) -> Dict[str, Any]:
     missing_columns = [col for col in EXPECTED_COLUMNS if col not in actual_columns]
     unexpected_columns = [col for col in actual_columns if col not in EXPECTED_COLUMNS]
 
+    casing_differences: List[str] = []
+    for exp_col in list(missing_columns):
+        matched = _find_column(df, exp_col)
+        if matched and matched != exp_col:
+            casing_differences.append(f"Expected '{exp_col}' but found '{matched}' (case/spacing difference)")
+
     exact_match = (actual_columns == EXPECTED_COLUMNS)
     contains_all_expected = (len(missing_columns) == 0)
 
@@ -150,6 +167,7 @@ def check_schema_and_columns(df: pd.DataFrame) -> Dict[str, Any]:
         "expected_column_count": len(EXPECTED_COLUMNS),
         "exact_match": exact_match,
         "contains_all_expected": contains_all_expected,
+        "casing_differences": casing_differences,
         "missing_columns": missing_columns,
         "unexpected_columns": unexpected_columns,
         "actual_columns": actual_columns,
@@ -255,16 +273,17 @@ def check_categorical_distributions(df: pd.DataFrame) -> Dict[str, Any]:
     distributions: Dict[str, Any] = {}
 
     for col in categorical_targets:
-        if col not in df.columns:
+        actual_col = _find_column(df, col)
+        if not actual_col:
             distributions[col] = {"status": "COLUMN_MISSING"}
             continue
 
         # Extract normalized strings for inspection
-        val_counts = df[col].dropna().astype(str).str.strip().value_counts().to_dict()
+        val_counts = df[actual_col].dropna().astype(str).str.strip().value_counts().to_dict()
         unique_vals = list(val_counts.keys())
-        missing_count = int(df[col].apply(_is_missing_entry).sum())
+        missing_count = int(df[actual_col].apply(_is_missing_entry).sum())
 
-        distributions[col] = {
+        distributions[actual_col] = {
             "unique_values_count": len(unique_vals),
             "unique_values": unique_vals,
             "value_counts": val_counts,
@@ -288,9 +307,10 @@ def check_numeric_ranges_and_validity(df: pd.DataFrame) -> Dict[str, Any]:
     results: Dict[str, Any] = {}
 
     # 1. 10th Percentage Validation
-    if COL_10TH_PERCENT in df.columns:
-        results[COL_10TH_PERCENT] = _validate_numeric_series(
-            series=df[COL_10TH_PERCENT],
+    col_10th = _find_column(df, COL_10TH_PERCENT)
+    if col_10th:
+        results[col_10th] = _validate_numeric_series(
+            series=df[col_10th],
             min_bound=0.0,
             max_bound=100.0,
             integer_only=False,
@@ -298,9 +318,10 @@ def check_numeric_ranges_and_validity(df: pd.DataFrame) -> Dict[str, Any]:
         )
 
     # 2. 12th / Diploma Percentage Validation
-    if COL_12TH_OR_DIPLOMA_PERCENT in df.columns:
-        results[COL_12TH_OR_DIPLOMA_PERCENT] = _validate_numeric_series(
-            series=df[COL_12TH_OR_DIPLOMA_PERCENT],
+    col_12th = _find_column(df, COL_12TH_OR_DIPLOMA_PERCENT)
+    if col_12th:
+        results[col_12th] = _validate_numeric_series(
+            series=df[col_12th],
             min_bound=0.0,
             max_bound=100.0,
             integer_only=False,
@@ -308,10 +329,10 @@ def check_numeric_ranges_and_validity(df: pd.DataFrame) -> Dict[str, Any]:
         )
 
     # 3. 12th Cut Off Validation
-    if COL_12TH_CUTOFF in df.columns:
-        # Standard cutoffs are typically out of 200 (engineering) or 100
-        results[COL_12TH_CUTOFF] = _validate_numeric_series(
-            series=df[COL_12TH_CUTOFF],
+    col_cutoff = _find_column(df, COL_12TH_CUTOFF)
+    if col_cutoff:
+        results[col_cutoff] = _validate_numeric_series(
+            series=df[col_cutoff],
             min_bound=0.0,
             max_bound=200.0,
             integer_only=False,
@@ -319,9 +340,10 @@ def check_numeric_ranges_and_validity(df: pd.DataFrame) -> Dict[str, Any]:
         )
 
     # 4. CGPA (Till Semester 05) Validation
-    if COL_CGPA in df.columns:
-        results[COL_CGPA] = _validate_numeric_series(
-            series=df[COL_CGPA],
+    col_cgpa = _find_column(df, COL_CGPA)
+    if col_cgpa:
+        results[col_cgpa] = _validate_numeric_series(
+            series=df[col_cgpa],
             min_bound=0.0,
             max_bound=10.0,
             integer_only=False,
@@ -329,9 +351,10 @@ def check_numeric_ranges_and_validity(df: pd.DataFrame) -> Dict[str, Any]:
         )
 
     # 5. Number of Current Arrears Validation
-    if COL_NO_OF_CURRENT_ARREARS in df.columns:
-        results[COL_NO_OF_CURRENT_ARREARS] = _validate_numeric_series(
-            series=df[COL_NO_OF_CURRENT_ARREARS],
+    col_arrears = _find_column(df, COL_NO_OF_CURRENT_ARREARS)
+    if col_arrears:
+        results[col_arrears] = _validate_numeric_series(
+            series=df[col_arrears],
             min_bound=0.0,
             max_bound=None,
             integer_only=True,
@@ -339,9 +362,10 @@ def check_numeric_ranges_and_validity(df: pd.DataFrame) -> Dict[str, Any]:
         )
 
     # 6. LeetCode Solved Count Validation
-    if COL_LEETCODE_SOLVED in df.columns:
-        results[COL_LEETCODE_SOLVED] = _validate_numeric_series(
-            series=df[COL_LEETCODE_SOLVED],
+    col_leetcode = _find_column(df, COL_LEETCODE_SOLVED)
+    if col_leetcode:
+        results[col_leetcode] = _validate_numeric_series(
+            series=df[col_leetcode],
             min_bound=0.0,
             max_bound=None,
             integer_only=True,
@@ -465,14 +489,14 @@ def check_logical_inconsistencies(df: pd.DataFrame) -> Dict[str, Any]:
     """
     inconsistencies: List[Dict[str, Any]] = []
 
-    has_curr_arr = COL_CURRENT_ARREAR in df.columns
-    has_num_curr_arr = COL_NO_OF_CURRENT_ARREARS in df.columns
-    has_hist_arr = COL_HISTORY_OF_ARREAR in df.columns
+    curr_arr_col = _find_column(df, COL_CURRENT_ARREAR)
+    num_curr_arr_col = _find_column(df, COL_NO_OF_CURRENT_ARREARS)
+    hist_arr_col = _find_column(df, COL_HISTORY_OF_ARREAR)
 
-    if has_curr_arr and has_num_curr_arr:
+    if curr_arr_col and num_curr_arr_col:
         for idx, row in df.iterrows():
-            curr_str = str(row[COL_CURRENT_ARREAR]).strip().lower() if not pd.isna(row[COL_CURRENT_ARREAR]) else ""
-            num_raw = row[COL_NO_OF_CURRENT_ARREARS]
+            curr_str = str(row[curr_arr_col]).strip().lower() if not pd.isna(row[curr_arr_col]) else ""
+            num_raw = row[num_curr_arr_col]
 
             # Try parsing count
             try:
@@ -499,10 +523,10 @@ def check_logical_inconsistencies(df: pd.DataFrame) -> Dict[str, Any]:
                 })
 
     # Case C: History of Arrear is 'No' but Current Arrear is 'Yes'
-    if has_hist_arr and has_curr_arr:
+    if hist_arr_col and curr_arr_col:
         for idx, row in df.iterrows():
-            hist_str = str(row[COL_HISTORY_OF_ARREAR]).strip().lower() if not pd.isna(row[COL_HISTORY_OF_ARREAR]) else ""
-            curr_str = str(row[COL_CURRENT_ARREAR]).strip().lower() if not pd.isna(row[COL_CURRENT_ARREAR]) else ""
+            hist_str = str(row[hist_arr_col]).strip().lower() if not pd.isna(row[hist_arr_col]) else ""
+            curr_str = str(row[curr_arr_col]).strip().lower() if not pd.isna(row[curr_arr_col]) else ""
 
             if hist_str in {"no", "n"} and curr_str in {"yes", "y"}:
                 inconsistencies.append({
@@ -595,6 +619,10 @@ def format_audit_summary(audit_results: Dict[str, Any], anonymize: bool = True) 
         lines.append(f"  Missing Columns  : {schema.get('missing_columns')}")
     if schema.get("unexpected_columns"):
         lines.append(f"  Extra Columns    : {schema.get('unexpected_columns')}")
+    if schema.get("casing_differences"):
+        lines.append("  Casing Variations Detected:")
+        for diff in schema.get("casing_differences"):
+            lines.append(f"    * {diff}")
 
     lines.extend([
         "-" * 78,
