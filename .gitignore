@@ -55,9 +55,9 @@ data/processed/*
 *.sqlite3
 *.db
 
-# Model artifacts and checkpoints
-models/
-artifacts/
+# Model artifacts and checkpoints (at repository root)
+/models/
+/artifacts/
 *.pkl
 *.joblib
 *.onnx
