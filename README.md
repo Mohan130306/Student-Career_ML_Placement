@@ -1,6 +1,6 @@
 # AI-Powered Student Career & Placement Prediction System
 
-An end-to-end machine learning project engineered to analyze comprehensive student profiles—spanning academic records, technical proficiencies, aptitude evaluations, coding performance, communication ratings, projects, internships, and certifications—to predict campus placement outcomes and provide actionable, personalized career preparation guidance.
+An enterprise-grade, end-to-end Machine Learning system engineered to evaluate multi-dimensional student profiles—spanning academic records, technical proficiencies, aptitude evaluations, coding performance, communication ratings, projects, internships, and certifications—to predict campus placement outcomes, explain algorithmic drivers via **SHAP**, diagnose **skill deficits**, evaluate **corporate eligibility**, and deliver **personalized career preparation roadmaps**.
 
 ---
 
@@ -14,127 +14,108 @@ Campus placement outcomes are critical indicators of institutional effectiveness
 
 ---
 
-## 💡 Proposed Solution
+## 💡 System Capabilities
 
-This project develops an objective, data-driven machine learning system to:
-
-1. **Classify Placement Readiness**: Predict student placement outcomes early in their academic journey.
-2. **Explain Predictions**: Offer transparent, explainable feature attribution to understand the core drivers behind each prediction.
-3. **Identify Skill Gaps**: Pinpoint specific competency gaps relative to industry job profiles.
-4. **Deliver Personalized Recommendations**: Provide tailored improvement roadmaps (courses, technical topics, coding practice, project ideas).
-5. **Empower Stakeholders**: Equip students with self-assessment dashboards and institutions with batch-level analytics to organize proactive training programs.
-
----
-
-## 🎯 Current Development Phase
-
-### **Phase 1: Project Foundation (Current)**
-
-The project is currently in **Phase 1**, focusing exclusively on laying an enterprise-grade engineering and data science foundation:
-- Establishing a clean, modular repository architecture.
-- Configuring a dedicated Python 3.11 runtime environment.
-- Pinning core mathematical, data manipulation, and machine learning dependencies.
-- Defining strict data governance, integrity, and testing protocols.
-- Documenting project architecture and long-term milestones.
-
-> **Note**: In compliance with Phase 1 development rules, no synthetic datasets, model training, or web frameworks (FastAPI/React/Streamlit) are introduced in this phase.
+1. **Placement Readiness Classification**: Unbiased binary prediction of placement outcome (`Placement-Ready` vs. `At-Risk / Needs Intervention`).
+2. **Calibrated Probability Index**: Granular probability score ($0.0 - 100.0\%$) and readiness tier categorization.
+3. **Explainable AI (SHAP)**: Transparent feature attribution decomposing exact positive amplifiers and negative risk penalties pushing the model log-odds.
+4. **Skill-Gap Diagnostic**: Granular gap analysis ($0 - 100\%$) comparing candidate competencies against empirical industry benchmarks for 5 career roles.
+5. **Career Track Compatibility Alignment**: Multi-role ranking across **SDE**, **Data Analyst**, **Backend / Full Stack Developer**, **QA / Test Engineer**, and **Systems / Support Engineer**.
+6. **Corporate Tier Eligibility Screening**: Automated eligibility checks across **Tier 1 Product (8+ LPA)**, **Tier 2 Tech Solutions (5-8 LPA)**, and **Tier 3 IT Services (3.5-5 LPA)** with explicit disqualification blocker reporting.
+7. **Personalized 4-to-8 Week Preparation Roadmap**: Step-by-step weekly action items addressing the student's highest deficit areas.
+8. **Institutional Placement Analytics Portal**: Batch-wide monitoring for college administration, departmental readiness comparisons, and at-risk student monitoring rosters.
+9. **Dual Architecture (Streamlit + FastAPI)**: Includes both an interactive Streamlit UI dashboard and production-ready REST API endpoints.
+10. **Database-Agnostic Storage**: Out-of-the-box local **SQLite** storage (`data/placement.db`) with zero config, effortlessly portable to **PostgreSQL** via `.env`.
 
 ---
 
-## 🗺️ Planned Future Phases
+## 🛠️ Complete Technology Stack
 
-Development proceeds sequentially with manual verification at every milestone:
-
-- **Phase 1 — Project Foundation** *(Completed / Current)*: Repository setup, Python 3.11 environment, core dependency management, documentation.
-- **Phase 2 — Data Acquisition & Exploratory Data Analysis (EDA)**: Ingestion of genuine/representative student profile data, statistical profiling, distribution analysis, and correlation discovery.
-- **Phase 3 — Data Preprocessing & Feature Engineering Pipeline**: Missing value imputation, robust categorical encoding, feature scaling, and construction of composite skill-gap metrics.
-- **Phase 4 — Model Training & Evaluation**: Training baseline and ensemble classifiers (Logistic Regression, Random Forest, etc.), cross-validation, hyperparameter tuning, and comprehensive metric evaluation (Precision, Recall, F1, ROC-AUC).
-- **Phase 5 — Explainable AI & Recommendation Engine**: Integration of feature importance and interpretability frameworks, skill-gap diagnostic calculation, and role alignment recommendations.
-- **Phase 6 — API & Backend Service**: Production-grade REST API development using FastAPI to serve prediction and recommendation endpoints.
-- **Phase 7 — Frontend Dashboards**: Interactive student and administrator portals for profile tracking and batch monitoring.
-- **Phase 8 — End-to-End System Integration & Deployment**: Containerization (Docker), CI/CD pipelines, and cloud deployment.
-
----
-
-## 🛠️ Initial Technology Stack
-
-| Category | Technology | Purpose |
+| Layer | Technology | Purpose |
 | :--- | :--- | :--- |
-| **Language Runtime** | **Python 3.11** | Core programming language environment |
-| **Data Manipulation** | **Pandas**, **NumPy** | Data structures, array computing, and matrix operations |
-| **Machine Learning** | **Scikit-learn** | Preprocessing transformers, pipelines, classification algorithms, metrics |
-| **Data Visualization** | **Matplotlib**, **Seaborn** | Exploratory plots, correlation matrices, performance curves |
-| **Interactive Prototyping** | **JupyterLab**, **Notebook**, **ipykernel** | Exploratory notebooks and experimental diagnostics |
-| **Quality Assurance** | **Pytest** | Automated unit, schema, and pipeline integration testing |
-| **Version Control** | **Git / GitHub** | Source code versioning and collaborative tracking |
-
-*Frameworks reserved for subsequent phases: FastAPI, React, PostgreSQL, XGBoost, SHAP, and Streamlit.*
+| **Language Runtime** | **Python 3.11 / 3.14** | Core programming environment |
+| **Data Manipulation** | **Pandas**, **NumPy**, **OpenPyXL** | Ingestion, feature transformations, schema validation |
+| **Machine Learning** | **Scikit-learn**, **XGBoost** | Logistic Regression, Random Forest, Gradient Boosting, XGBoost |
+| **Explainable AI** | **SHAP** | Individual waterfall feature attribution & global importance |
+| **Data Visualization** | **Plotly**, **Seaborn**, **Matplotlib** | Radar competency charts, correlation bars, ROC curves |
+| **Interactive Dashboard** | **Streamlit** | Multi-portal web application (Student & Admin views) |
+| **Backend REST API** | **FastAPI** + **Pydantic** | Production inference and recommendation endpoints |
+| **Database & ORM** | **SQLAlchemy** + **SQLite** / **PostgreSQL** | Portable database persistence |
+| **Quality Assurance** | **Pytest** (51 passing tests) | Full unit and pipeline regression coverage |
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Architecture
 
 ```
 student-career-placement-ml/
 │
 ├── data/
-│   ├── raw/                 # Immutable source datasets
-│   ├── processed/           # Cleaned, transformed, and feature-engineered datasets
-│   └── README.md            # Data governance and storage protocols
-│
-├── notebooks/
-│   └── README.md            # Interactive research guidelines and notebook conventions
-│
-├── src/
-│   ├── __init__.py          # Package initializer (v0.1.0)
-│   └── README.md            # Modular architecture and development standards
-│
-├── tests/
-│   └── README.md            # Automated testing guide and quality assurance policies
+│   ├── raw/                 # Source benchmarks (student_placement_benchmark.csv & .xlsx)
+│   ├── processed/           # Leak-free stratified splits (X_train, X_test, y_train, y_test)
+│   └── placement.db         # Local SQLite database (portable to PostgreSQL)
 │
 ├── docs/
-│   └── project-overview.md  # Detailed system architecture and data integrity principles
+│   ├── figures/             # ROC curves, confusion matrices, SHAP plots, radar charts
+│   ├── dataset_schema.md    # Complete 24-feature data dictionary and governance
+│   ├── data_preprocessing.md# Pipeline architecture and engineered features
+│   ├── eda_report.md        # Comprehensive exploratory analysis and role benchmarks
+│   ├── model_evaluation.md # Benchmark leaderboard and champion selection report
+│   └── explainability_and_recommendations.md # SHAP and recommendation engine specs
 │
-├── requirements.txt         # Pinned Python dependencies for Phase 1
-├── .gitignore               # Exclusions for virtual environments, caches, models, data
-└── README.md                # Project landing documentation
+├── models/
+│   ├── preprocessor.joblib  # Serialized ColumnTransformer pipeline
+│   ├── champion_model.joblib# Serialized champion model (Logistic Regression)
+│   └── model_*.joblib       # Archived Random Forest, Gradient Boosting, XGBoost models
+│
+├── src/
+│   ├── analysis/            # EDA profiling engine (src.analysis.eda)
+│   ├── api/                 # Production FastAPI endpoints (src.api.main)
+│   ├── data/                # Data loader, audit module, and benchmark generator
+│   ├── db/                  # SQLAlchemy models and repository CRUD
+│   ├── explainability/      # SHAP explainer module (src.explainability.explainer)
+│   ├── features/            # Domain feature engineering & ColumnTransformer pipeline
+│   ├── models/              # Training, cross-validation & inference (predict.py)
+│   └── recommendations/     # Skill-gap, role matching, eligibility & roadmap engine
+│
+├── tests/                   # 51 automated unit tests across all 9 subsystems
+├── app.py                   # Main interactive Streamlit application
+├── requirements.txt         # Pinned production dependencies
+└── pytest.ini               # Pytest configuration
 ```
 
 ---
 
-## 🚀 Getting Started (Phase 1 Setup)
+## 🚀 Getting Started
 
-### 1. Prerequisites
-Ensure Python 3.11 is installed on your system.
-
-### 2. Set Up Virtual Environment
+### 1. Run Automated Test Suite
+Verify that all 51 unit tests pass:
 ```bash
-# Create a Python 3.11 virtual environment
-py -3.11 -m venv .venv
-
-# Activate the virtual environment
-# Windows (PowerShell):
-.venv\Scripts\Activate.ps1
-# Linux / macOS:
-source .venv/bin/activate
+pytest
 ```
 
-### 3. Install Dependencies
+### 2. Launch the Interactive Web Dashboard (Streamlit)
+To launch the interactive Student Self-Assessment & Admin Analytics dashboard:
 ```bash
-pip install --upgrade pip
-pip install -r requirements.txt
+streamlit run app.py
 ```
+*Open your browser at `http://localhost:8501` to use the Student Portal, Radar Charts, SHAP Explanations, and Admin Batch Analytics.*
 
-### 4. Verify Installation
+### 3. Launch the Backend REST API (FastAPI)
+To run the high-performance REST API:
 ```bash
-python -c "import pandas, numpy, sklearn, matplotlib, seaborn; print('All core Phase 1 libraries imported successfully!')"
+uvicorn src.api.main:app --reload --port 8000
 ```
+*Interactive Swagger documentation will be available at `http://localhost:8000/docs`.*
 
 ---
 
-## 🛡️ Development Rules
+## 💻 Seamless Portability to Personal Laptop (PostgreSQL)
 
-1. **Modular Architecture**: Reusable logic belongs in `src/`, not buried inside notebooks.
-2. **Data Integrity**: Never edit raw data files; prevent target leakage and split data before fitting transformers.
-3. **No Premature Complexity**: Stick strictly to current phase deliverables without jumping ahead.
-4. **Test-Driven Rigor**: Implement unit tests for data transforms and pipelines.
+This repository is designed to be **100% portable**:
+- **On this machine**: Runs out of the box using local SQLite (`data/placement.db`) with zero setup.
+- **On your personal laptop**: To switch to **PostgreSQL**, simply create a `.env` file at the root:
+  ```env
+  DATABASE_URL=postgresql://postgres:your_password@localhost:5432/placement_db
+  ```
+  The exact same SQLAlchemy models, API endpoints, and Streamlit app will automatically connect and create tables on your PostgreSQL database!
